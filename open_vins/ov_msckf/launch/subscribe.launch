@@ -1,0 +1,43 @@
+<launch>
+	<!-- Parameter Configuration -->
+	<arg name="verbosity" default="INFO" />
+	<arg name="config_path" default="$(find ov_msckf)/config/estimator_config.yaml" />
+	<arg name="max_cameras" default="1" />
+	<arg name="use_stereo" default="true" />
+
+	<!-- Saving trajectory path and timing information -->
+	<arg name="dosave" default="false" />
+	<arg name="dotime" default="false" />
+	<arg name="path_est" default="/tmp/traj_estimate.txt" />
+	<arg name="path_time" default="/tmp/traj_timing.txt" />
+
+	<!-- OpenVINS Node Initialization -->
+	<node name="ov_msckf" pkg="ov_msckf" type="ros1_serial_msckf" output="screen" clear_params="true" required="true">
+
+		<!-- Pass Parameters to the Node -->
+		<param name="verbosity" type="string" value="$(arg verbosity)" />
+		<param name="config_path" type="string" value="$(arg config_path)" />
+		<param name="use_stereo" type="bool" value="$(arg use_stereo)" />
+		<param name="max_cameras" type="int" value="$(arg max_cameras)" />
+
+		<!-- Remap RGB camera image topic -->
+		<remap from="/realsense/color/image_raw" to="/ov_msckf/loop_depth_colored" />
+		<remap from="/realsense/depth/color/points" to="/ov_msckf/points_msckf" />
+		<remap from="/realsense/depth/image_rect_raw" to="/ov_msckf/loop_depth" />
+		<remap from="/realsense/depth/color/points" to="/ov_msckf/loop_depth" />
+		<remap from="/realsense/depth/color/points" to="/camera/depth/points" />
+		<!--remap from=" /realsense/depth/camera_info" to="/camera/color/image_raw" -->
+
+
+
+	</node>
+
+	<!-- Record the trajectory if enabled -->
+	<group if="$(arg dosave)">
+		<node name="recorder_estimate" pkg="ov_eval" type="pose_to_file" output="screen" required="true">
+			<param name="topic" type="str" value="/ov_msckf/poseimu" />
+			<param name="topic_type" type="str" value="PoseWithCovarianceStamped" />
+			<param name="output" type="str" value="$(arg path_est)" />
+		</node>
+	</group>
+</launch>

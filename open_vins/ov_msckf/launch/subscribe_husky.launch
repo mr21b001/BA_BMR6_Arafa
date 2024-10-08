@@ -1,0 +1,26 @@
+<launch>
+  <!-- Parameter Configuration -->
+  <arg name="verbosity" default="INFO" />
+  <arg name="config_path" default="$(find ov_msckf)/config/estimator_config.yaml" />
+  <arg name="max_cameras" default="1" />
+  <arg name="use_stereo" default="true" />
+
+  <!-- OpenVINS Node Initialization -->  
+  <node name="ov_msckf" pkg="ov_msckf" type="ros1_serial_msckf" output="screen" clear_params="true" required="true">
+    
+    <!-- Pass Parameters to the Node -->
+    <param name="verbosity" type="string" value="$(arg verbosity)" />
+    <param name="config_path" type="string" value="$(arg config_path)" />
+    <param name="use_stereo" type="bool" value="$(arg use_stereo)" />
+    <param name="max_cameras" type="int" value="$(arg max_cameras)" />
+
+    <!-- Remap IMU topic to standard OpenVINS IMU topic -->
+    <remap from="/imu0" to="/realsense/imu/data" />
+
+    <!-- Remap RGB camera image topic -->
+    <remap from="/camera/color/image_raw" to="/realsense/color/image_raw" />
+
+    <!-- Remap depth image topic (if using depth data) -->
+    <remap from="/camera/depth/image_raw" to="/realsense/depth/image_rect_raw" />
+  </node>
+</launch>
