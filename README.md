@@ -76,7 +76,6 @@ This utilizes the OpenVins package for visual-inertial odometry with the Husky r
 
 ```bash
 roslaunch husky_gazebo husky_playpen.launch
-roslaunch husky_viz view_robot.launch
 roslaunch ov_msckf simulation.launch  # Wait until after the launch
 roslaunch husky_navigation move_base.launch
 rosrun husky_goals_pkg husky_openvins
